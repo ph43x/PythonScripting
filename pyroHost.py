@@ -7,12 +7,12 @@ class changeBrightness(object):
     def brightnessChanger(self, val):
         if val in open(screenBrightnessFile, 'r').read(): #add the check for max brightness here
           logFile = open('/home/mint/git/PythonScripting/running.log', 'a')
-          write('PyroHost attempted to write $val to $screenBrightnessFile \n')
+          logFile.write('PyroHost attempted to write $val to  $screenBrightnessFile .')
           logFile.close()
-          return "100"
+          return "100 Brightness already {0}.".format(val)
         else:
           file = open(screenBrightnessFile, 'w')
-          write = (val)
+          file.write = ('{0}.format(val)')
           file.close()
           return "200 Brightness changed to {0}.".format(val)
 
