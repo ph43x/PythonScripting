@@ -1,19 +1,26 @@
 # saved as greeting-server.py
 import Pyro4
-screenBrightnessFile = "/home/mint/git/PythonScripting/brightnessFile"
+from subprocess import call
+
+screenBrightnessFile = "/home/osmc/git/PythonScripting/brightnessFile"
+runningLogFile = "/home/osmc/git/PythonScripting/running.log"
 
 @Pyro4.expose
 class changeBrightness(object):
     def brightnessChanger(self, val):
         if val in open(screenBrightnessFile, 'r').read(): #add the check for max brightness here
-          logFile = open('/home/mint/git/PythonScripting/running.log', 'a')
-          logFile.write('PyroHost attempted to write $val to  $screenBrightnessFile .')
+          logFile = open(runningLogFile, 'a')
+          logFile.write('PyroHost attempted to write ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
           logFile.close()
           return "100 Brightness already {0}.".format(val)
         else:
-          file = open(screenBrightnessFile, 'w')
-          file.write = ('{0}.format(val)')
-          file.close()
+          screenFile = open(screenBrightnessFile, 'w')
+          screenFile.write(val)
+          screenFile.close()
+          #call(['echo "' + str(val) + '" > ' + str(screenBrightnessFile)])
+          logFile = open(runningLogFile, 'a')
+          logFile.write('PyroHost wrote ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
+          logFile.close()
           return "200 Brightness changed to {0}.".format(val)
 
 daemon = Pyro4.Daemon()                # make a Pyro daemon
