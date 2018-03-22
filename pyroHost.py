@@ -6,6 +6,7 @@ import shlex
 import time
 
 screenBrightnessFile = "/home/osmc/git/PythonScripting/brightnessFile"
+screenBacklightFile = "/home/osmc/git/PythonScripting/backlightFile"
 runningLogFile = "/home/osmc/git/PythonScripting/running.log"
 
 @Pyro4.expose
@@ -28,16 +29,33 @@ class changeBrightness(object):
 @Pyro4.expose
 class saveLastMinuteVideo(object):
     def saveLastMin(self, value):
-        currentTime = datetime.datetime.now()
-        return currentTime
+        currentTime = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+        currentTimeSansThree = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+        cTST = datetime.datetime.now() - datetime.timedelta(minutes=3)
+        
+        return cTST.strftime('%Y-%m-%d_%H.%M.%S')
 
+@Pyro4.expose
+class suspendSystem(object):
+    def suspendSystemNow(self, value):
+        call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
+        backlightFile = open(screenBacklightFile, 'w')
+        backlightFile.write('0')
+        backlightFile.close()
+        logFile = open(runningLogFile, 'a')                                                                  
+        logFile.write('PyroHost suspended the system.\n')             
+        logFile.close()
 
 daemon = Pyro4.Daemon()                # make a Pyro daemon
 ns = Pyro4.locateNS()                  # find the name server
 uri = daemon.register(changeBrightness) # register the greeting maker as a Pyro object
 ns.register("change.brightness", uri)   # register the object with a name in the name server
-uri = daemon.register(saveLastMinuteVideo)
-ns.register("save.lastMinuteVideo", uri)
+uri = daemon.register(saveLastMinuteVideo) # register saving the last minute of video object
+ns.register("save.lastMinuteVideo", uri)   # registering the object with NS
+uri = daemon.register(suspendSystem)
+ns.register("system.suspend", uri)
+#uri = daemon.register(resumeSystem)
+#ns.register("system.resume")
 
 print("Ready.")
 daemon.requestLoop()                   # start the event loop of the server to wait for calls
