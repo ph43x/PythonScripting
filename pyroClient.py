@@ -18,13 +18,12 @@ def start():
 
   if action.lower() == 'b':
     action2 = 0
-    action2 = input('Brightness level? 1-100\n')
+    action2 = input('Camera Brightness? 1-100\n')
     
     if int(action2) > 0 and int(action2) < 101:
       val = action2
-      brightness_changer = Pyro4.Proxy("PYRONAME:change.brightness")
-      print(val, action2)
-      print(brightness_changer.brightnessChanger(val))
+      videoControl = Pyro4.Proxy("PYRONAME:control.video")
+      print(videoControl.video_control(5,int(val)))
       return(start())
     else:
       print('Value not in range 1-100\n')
@@ -33,12 +32,12 @@ def start():
   if action.lower() == 'start':
     val = 0
     videoControl = Pyro4.Proxy("PYRONAME:control.video")
-    print(videoControl.video_control(int(0)))
+    print(videoControl.video_control(int(0),int(0)))
     return(start())
 
   if action.lower() == 'stop':
     videoControl = Pyro4.Proxy("PYRONAME:control.video") 
-    print(videoControl.video_control(1))   
+    print(videoControl.video_control(int(1),int(0)))   
     return(start())
 
   if action.lower() == 'exit':   
