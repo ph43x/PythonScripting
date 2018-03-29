@@ -1,4 +1,4 @@
-# saved as greeting-server.py
+#!/usr/bin/python3
 import Pyro4
 from subprocess import call
 import datetime
@@ -88,7 +88,7 @@ class videoControl(object):
     if action == '':
       return "100 No action specified 0-4"
 
-    if action == '0':
+    if action == 0:
       #Do i have to return the start_preview() function for it to display
       camera.start_preview()
       return "200 Preview Started"
@@ -115,7 +115,7 @@ class videoControl(object):
       return "200 Picture Taken"
 
     else:
-      return "100 Action Unknown"
+      return("100 Action Unknown" + str(action))
 
 
 #=========================
@@ -176,11 +176,11 @@ ns.register("save.lastMinuteVideo", uri)   # registering the object with NS
 uri = daemon.register(suspendSystem)
 ns.register("system.suspend", uri)
 uri = daemon.register(resumeSystem)
-ns.register("system.resume")
+ns.register("system.resume", uri)
 uri = daemon.register(videoControl)
-ns.register("control.video")
+ns.register("control.video", uri)
 uri = daemon.register(volumeControl)
-ns.register("control.volume")
+ns.register("control.volume", uri)
 
 
 print("Ready.")
