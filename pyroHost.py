@@ -54,26 +54,6 @@ def start():
 #=========================
 
 @Pyro4.expose
-class changeBrightness(object):
-  def brightnessChanger(self, val):
-    if val > 0 and val < 255:
-      if val in open(screenBrightnessFile, 'r').read():
-        logFile = open(runningLogFile, 'a')
-        logFile.write('PyroHost attempted to write ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
-        logFile.close()
-        return "100 Brightness already {0}.".format(val)
-      else:
-        screenFile = open(screenBrightnessFile, 'w')
-        screenFile.write(val)
-        screenFile.close()
-        logFile = open(runningLogFile, 'a')
-        logFile.write('PyroHost wrote ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
-        logFile.close()
-        return "200 Brightness changed to {0}.".format(val)
-    else:
-      return "100 Not a valid value 0-255"
-
-@Pyro4.expose
 class saveLastMinuteVideo(object):
     def saveLastMin(self, value):
         currentTime = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
@@ -83,7 +63,7 @@ class saveLastMinuteVideo(object):
 
 @Pyro4.expose
 class videoControl(object):
-  def video_control(self, action): #add a 3rd var for naming the camera setting to update global variables
+  def video_control(self, action, val): #add a 3rd var for naming the camera setting to update global variables
     fileName = os.path.join(videoTemp, datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S.h264'))
     if action == '':
       return "100 No action specified 0-4"
@@ -93,23 +73,32 @@ class videoControl(object):
       camera.start_preview()
       return "200 Preview Started"
     
-    if action == '1':
+    if action == 1:
       camera.stop_preview()
       return "200 Preview Stopped"
     
-    if action == '2':
+    if action == 2:
       camera.start_recording(fileName)
       return "200 Recording Started"
     
-    if action == '3':
+    if action == 3:
       camera.stop_recording(fileName)
       return "200 Recording Stopped"
 
-    if action == '3':
+    if action == 3:
       camera.stop_recording(fileName)
       return "200 Recording Stopped"
 
-    if action == '4':
+    if action == 4:
+      picFileName = str(datetime.date.today())
+      camera.capture(picFileName)
+      return "200 Picture Taken"
+
+    if action == 5:
+      camera.brightness = int(val)
+      return("200 Camera Brightness " + str(val))
+
+    if action == 6:
       picFileName = str(datetime.date.today())
       camera.capture(picFileName)
       return "200 Picture Taken"
@@ -157,6 +146,26 @@ class resumeSystem(object):
           call(shlex.split('xbmc-send --action="SetVolume(percent[$loweredVolume])"'))
           sleep(0.5)
         return "200 Suspended Resumed"
+
+@Pyro4.expose                                                                                                
+class changeBrightness(object):                                                                              
+  def brightnessChanger(self, val):                                                                          
+    if int(val) > 0 and int(val) < 255:                                                                      
+      if val in open(screenBrightnessFile, 'r').read():                                                      
+        logFile = open(runningLogFile, 'a')                                                                  
+        logFile.write('PyroHost attempted to write ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
+        logFile.close()                                                                                   
+        return "100 Brightness already {0}.".format(val)                                                  
+      else:                                                                                               
+        screenFile = open(screenBrightnessFile, 'w')                                                      
+        screenFile.write(val)                                                                             
+        screenFile.close()                                                                                
+        logFile = open(runningLogFile, 'a')                                                                  
+        logFile.write('PyroHost wrote ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')             
+        logFile.close()                                                                                      
+        return "200 Brightness changed to {0}.".format(val)                                                  
+    else:                                                                                                    
+      return "100 Not a valid value 0-255"
 
 @Pyro4.expose
 class volumeControl(object):
