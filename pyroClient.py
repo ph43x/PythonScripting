@@ -14,10 +14,9 @@ import time
 #print(save_last_minute_video.saveLastMin(value))
 
 def start():
-  action = input('(B)rightness? 1-100 Or (Start) Preview and (Stop) Preview. Also (Exit)\n')
+  action = input('(B)rightness, (Prev)iew Controls, (Rec)ording Controls, (Pic)ture, or (Exit)\n')
 
   if action.lower() == 'b':
-    action2 = 0
     action2 = input('Camera Brightness? 1-100\n')
     
     if int(action2) > 0 and int(action2) < 101:
@@ -29,19 +28,47 @@ def start():
       print('Value not in range 1-100\n')
       return(start())
 
-  if action.lower() == 'start':
-    val = 0
-    videoControl = Pyro4.Proxy("PYRONAME:control.video")
-    print(videoControl.video_control(int(0),int(0)))
-    return(start())
+  if action.lower() == 'prev':
+    action2 = input('(Start) or (Stop) Preview?\n')
+    
+    if action2.lower() == 'start':
+      videoControl = Pyro4.Proxy("PYRONAME:control.video")
+      print(videoControl.video_control(int(0),int(0)))
+      return(start())
 
-  if action.lower() == 'stop':
-    videoControl = Pyro4.Proxy("PYRONAME:control.video") 
-    print(videoControl.video_control(int(1),int(0)))   
-    return(start())
+    if action2.lower() == 'stop':
+      videoControl = Pyro4.Proxy("PYRONAME:control.video") 
+      print(videoControl.video_control(int(1),int(0)))   
+      return(start())
+    
+    else:
+      print('Try again...\n')
+      return(start())
+
+  if action.lower() == 'rec':
+    action2 = input('(Start) or (Stop) Recording?\n')
+
+    if action2.lower() == 'start':                        
+      videoControl = Pyro4.Proxy("PYRONAME:control.video")
+      print(videoControl.video_control(int(2),int(0)))  
+      return(start())                                   
+                                                        
+    if action2.lower() == 'stop':                       
+      videoControl = Pyro4.Proxy("PYRONAME:control.video")
+      print(videoControl.video_control(int(3),int(0)))
+      return(start())
+
+    else:
+      print('Try again...\n')
+      return(start())
 
   if action.lower() == 'exit':   
     exit()
+
+  if action.lower() == 'pic':
+    videoControl = Pyro4.Proxy("PYRONAME:control.video")
+    print(videoControl.video_control(4,0))
+    return(start())
 
   else:
     print('Entry not valid, try again.. stupid.')
