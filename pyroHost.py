@@ -82,17 +82,13 @@ class videoControl(object):
       return "200 Recording Started"
     
     if action == 3:
-      camera.stop_recording(fileName)
-      return "200 Recording Stopped"
-
-    if action == 3:
-      camera.stop_recording(fileName)
+      camera.stop_recording()
       return "200 Recording Stopped"
 
     if action == 4:
-      picFileName = str(datetime.date.today())
+      picFileName = os.path.join(picSaved, datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S.jpg'))
       camera.capture(picFileName)
-      return "200 Picture Taken"
+      return("200 Picture Taken")
 
     if action == 5:
       camera.brightness = int(val)
@@ -148,7 +144,7 @@ class resumeSystem(object):
         return "200 Suspended Resumed"
 
 @Pyro4.expose                                                                                                
-class changeBrightness(object):                                                                              
+class screenBrightness(object):                                                                              
   def brightnessChanger(self, val):                                                                          
     if int(val) > 0 and int(val) < 255:                                                                      
       if val in open(screenBrightnessFile, 'r').read():                                                      
@@ -168,6 +164,17 @@ class changeBrightness(object):
       return "100 Not a valid value 0-255"
 
 @Pyro4.expose
+class screenBacklight(object):
+  def backlightChanger(self, val):
+    if int(val) == 1 or int(val) == 0:
+      sbl = open(screenBacklightFile, 'w')
+      sbl.write(val)
+      sbl.close()
+      return "200 Backlight changed to {0}.".format(val)
+    else:
+      return "100 Backlight value out of range 0-1"
+
+@Pyro4.expose
 class volumeControl(object):
   def adjustVolume(self, volValue):
     prevVol = currentVolume
@@ -178,8 +185,10 @@ class volumeControl(object):
 
 daemon = Pyro4.Daemon()                # make a Pyro daemon
 ns = Pyro4.locateNS()                  # find the name server
-uri = daemon.register(changeBrightness) # register the greeting maker as a Pyro object
-ns.register("change.brightness", uri)   # register the object with a name in the name server
+uri = daemon.register(screenBrightness) # register the greeting maker as a Pyro object
+ns.register("screen.brightness", uri)   # register the object with a name in the name server
+uri = daemon.register(screenBacklight)
+ns.register("screen.backlight", uri)
 uri = daemon.register(saveLastMinuteVideo) # register saving the last minute of video object
 ns.register("save.lastMinuteVideo", uri)   # registering the object with NS
 uri = daemon.register(suspendSystem)
