@@ -77,7 +77,7 @@ class videoControl(object):
 
 
     if action == '':
-      return "100 No action specified 0-4"
+      return "100 No action specified 0-6"
 
     if action == 0:
       #Do i have to return the start_preview() function for it to display
