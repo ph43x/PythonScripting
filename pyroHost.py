@@ -15,6 +15,7 @@ videoTemp = '/home/osmc/camera/temp/'
 videoSaved = '/home/osmc/camera/video/'
 picSaved = '/home/osmc/camera/pic/'
 currentVolume = 0
+adjustingVolume = 0
 i = 0
 
 #Camera settings with default values
@@ -163,19 +164,24 @@ class resumeSystem(object):
         logFile = open(runningLogFile, 'a')                                                                  
         logFile.write('PyroHost resumed the system.\n')             
         logFile.close()
-        loweredVolume = int(currentVolume) - 50
-        if loweredVolume < 0:
-          loweredVolume = 0
+        if currentVolume > 75:
+          loweredVolume = int(currentVolume) - 50
+          adjustingVolume = int(currentVolume)
+        if currentVolume != adjustingVolume:
+          
 
         #I may have to break out of the function to insert the variable loweredVolume
         call(shlex.split('xbmc-send --action="SetVolume(percent[$loweredVolume])"'))
         call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
-        while int(loweredVolume) > int(currentVolume):
+        while int(loweredVolume) < int(currentVolume):
           loweredVolume = loweredVolume + 5
           if loweredVolume > 100:
             loweredVolume = 100
           call(shlex.split('xbmc-send --action="SetVolume(percent[$loweredVolume])"'))
           sleep(0.5)
+          if currentVolume != adjustingVolume:
+            loweredVolume = currentVolume
+            break
         return "200 Suspended Resumed"
 
 @Pyro4.expose
@@ -211,9 +217,15 @@ class screenBacklight(object):
 
 @Pyro4.expose
 class volumeControl(object):
-  def adjustVolume(self, volValue):
+  def adjustVolume(self, volChange): # Accepts -100..100 % change to current volume or mute if 0
     prevVol = currentVolume
-    currentVolume = volValue
+    if int(volChange) == 0:
+      currentVolume = 0
+    if currentVolume > 100:
+      currentVolume = 100
+    else:
+      currentVolume = int(currentVolume) + int(volChange)
+    call(shlex.split('xbmc-send --action="SetVolume(percent[$currentVolume])"'))
     return "200 Volume Set From {0} to {1}.".format(prevVol, currentVolume)
 
 
