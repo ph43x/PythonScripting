@@ -221,12 +221,14 @@ class volumeControl(object):
     prevVol = currentVolume
     if int(volChange) == 0:
       currentVolume = 0
-    if currentVolume > 100:
+    if (currentVolume + int(volChange)) < 0:
+      currentVolume = 0
+    if (currentVolume + int(volChange)) > 100:
       currentVolume = 100
     else:
       currentVolume = int(currentVolume) + int(volChange)
     call(shlex.split('xbmc-send --action="SetVolume(percent[$currentVolume])"'))
-    return "200 Volume Set From {0} to {1}.".format(prevVol, currentVolume)
+    return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
 
 
 
