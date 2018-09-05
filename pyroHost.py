@@ -167,8 +167,8 @@ class resumeSystem(object):
         if currentVolume > 75:
           loweredVolume = int(currentVolume) - 50
           adjustingVolume = int(currentVolume)
-        if currentVolume != adjustingVolume:
-          
+        #if currentVolume != adjustingVolume:
+          #i will need to add the ability to call osmc and get current volume
 
         #I may have to break out of the function to insert the variable loweredVolume
         call(shlex.split('xbmc-send --action="SetVolume(percent[$loweredVolume])"'))
