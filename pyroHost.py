@@ -7,8 +7,8 @@ import time
 import picamera
 import os
 
-screenBrightnessFile = "/home/osmc/git/PythonScripting/brightnessFile"
-screenBacklightFile = "/home/osmc/git/PythonScripting/backlightFile"
+screenBrightnessFile = "/sys/class/backlight/rpi_backlight/brightness"
+screenBacklightFile = "/sys/class/backlight/rpi_backlight/bl_power"
 runningLogFile = "/home/osmc/git/PythonScripting/running.log"
 camera = picamera.PiCamera()
 videoTemp = '/home/osmc/camera/temp/'
