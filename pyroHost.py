@@ -173,13 +173,14 @@ class resumeSystem(object):
           #i will need to add the ability to call osmc and get current volume
 
         #I may have to break out of the function to insert the variable loweredVolume
-        call(shlex.split('xbmc-send --action="SetVolume($loweredVolume)"'))
+        call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
         call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
         while int(loweredVolume) < int(currentVolume):
           loweredVolume = loweredVolume + 5
           if loweredVolume > 100:
             loweredVolume = 100
-          call(shlex.split('xbmc-send --action="SetVolume($loweredVolume)"'))
+            break
+          call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
           sleep(0.5)
           if currentVolume != adjustingVolume:
             loweredVolume = currentVolume
@@ -229,7 +230,7 @@ class volumeControl(object):
       currentVolume = 100
     else:
       currentVolume = int(currentVolume) + int(volChange)
-    call(shlex.split('xbmc-send --action="SetVolume($currentVolume)"'))
+    call(shlex.split('xbmc-send --action="SetVolume(%s)"' % currentVolume))
     return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
 
 
