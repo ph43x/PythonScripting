@@ -1,18 +1,18 @@
 #!/bin/bash
 
 #kill $(ps -ef | grep pyroHost | grep -v grep | awk '{print $2}')
-for pid in $( ps -ef | egrep 'Pyro4.naming|pyroHost|interpreterForArduino' | grep -v grep | awk '{print $2}' );
+for pid in $( ps -ef | egrep 'pyroNaming|pyroHost|interpreterForArduino' | grep -v grep | awk '{print $2}' );
   do sudo kill $pid;
 done
 
 sleep 1
 sudo chmod 777 /dev/ttyUSB*
 sleep 1
-python3 -m Pyro4.naming &
+python3 /home/osmc/git/PythonScripting/pyroNaming.py & > /dev/null 2>&1
 sleep 1
-python3 /home/osmc/git/PythonScripting/pyroHost.py &
+python3 /home/osmc/git/PythonScripting/pyroHost.py & > /dev/null 2>&1
 sleep 1
-python3 /home/osmc/git/RPi3Carputer/interpreterForArduino.py &
+python3 /home/osmc/git/RPi3Carputer/interpreterForArduino.py & > /dev/null 2>&1
 sleep 1
 echo "System Ready"
 exit
