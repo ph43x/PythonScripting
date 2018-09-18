@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #kill $(ps -ef | grep pyroHost | grep -v grep | awk '{print $2}')
+
+#May want to try disabling this next line, or the sudo part of it for kodi to be able to run it?
 for pid in $( ps -ef | egrep 'pyroNaming|pyroHost|interpreterForArduino' | grep -v grep | awk '{print $2}' );
   do sudo kill $pid;
 done
