@@ -12,6 +12,7 @@ python3 -m Pyro4.naming &
 sleep 2
 python3 /home/osmc/git/PythonScripting/pyroHost.py &
 sleep 2
+cd /home/osmc/git/RPi3Carputer/
 python3 /home/osmc/git/RPi3Carputer/interpreterForArduino.py &
 sleep 1
 echo "System Ready"

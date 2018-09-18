@@ -14,7 +14,29 @@ import time
 #print(save_last_minute_video.saveLastMin(value))
 
 def start():
-  action = input('(B)rightness, (Prev)iew Controls, (Rec)ording Controls, (Pic)ture, or (Exit)\n')
+  action = input('(Res)ume System, (Sus)pend System, (B)rightness, (Prev)iew Controls, (Rec)ording Controls, (Pic)ture, or (Exit)\n')
+
+  if action.lower() == 'sus':
+    action2 = input('Suspend System?\n')
+
+    if action2.lower() == 'y':
+      suspendSystem = Pyro4.Proxy("PYRONAME:system.suspend")
+      print(suspendSystem.suspend_system_now(1))
+      return(start())
+    else:
+      print('Not Suspending System\n')
+      return(start())
+
+  if action.lower() == 'res':
+    action2 = input('Resume System?\n')
+
+    if action2.lower() == 'y':
+      resumeSystem = Pyro4.Proxy("PYRONAME:system.resume")
+      print(resumeSystem.resume_system_now(0))
+      return(start())
+    else:
+      print('Not Resuming System\n')
+      return(start())
 
   if action.lower() == 'b':
     action2 = input('Camera Brightness? 1-100\n')

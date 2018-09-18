@@ -150,7 +150,7 @@ class suspendSystem(object):
     def suspend_system_now(self, value):
         call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
         backlightFile = open(screenBacklightFile, 'w')
-        backlightFile.write('0')
+        backlightFile.write('1')
         backlightFile.close()
         logFile = open(runningLogFile, 'a') 
         logFile.write('PyroHost suspended the system.\n') 
@@ -161,13 +161,16 @@ class suspendSystem(object):
 class resumeSystem(object):
     def resume_system_now(self, value):
         backlightFile = open(screenBacklightFile, 'w')
-        backlightFile.write('1')
+        backlightFile.write('0')
         backlightFile.close()
         logFile = open(runningLogFile, 'a')                                                                  
         logFile.write('PyroHost resumed the system.\n')             
         logFile.close()
         if currentVolume > 75:
           loweredVolume = int(currentVolume) - 50
+          adjustingVolume = int(currentVolume)
+        else:
+          loweredVolume = int(currentVolume)
           adjustingVolume = int(currentVolume)
         #if currentVolume != adjustingVolume:
           #i will need to add the ability to call osmc and get current volume
