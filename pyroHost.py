@@ -16,6 +16,7 @@ videoSaved = '/home/osmc/camera/video/'
 picSaved = '/home/osmc/camera/pic/'
 currentVolume = 0
 adjustingVolume = 0
+systemSleeping = 0
 i = 0
 
 ##Camera settings with default values
@@ -46,6 +47,7 @@ i = 0
 call(shlex.split('sudo chmod 777 ' + screenBacklightFile))
 call(shlex.split('sudo chmod 777 ' + screenBrightnessFile))
 call(shlex.split('sudo chmod 777 ' + runningLogFile))
+Pyro4.naming.startNSloop(host=None, port=None, enableBroadcast=True, bchost=None, bcport=None, unixsocket=None, nathost=None, natport=None, storage=None, hmac=None)
 #call(shlex.split('python3 -m Pyro4.naming &'))
 
 #=========================
@@ -148,47 +150,57 @@ class saveLastMinuteVideo(object):
 @Pyro4.expose
 class suspendSystem(object):
     def suspend_system_now(self, value):
-        call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
-        backlightFile = open(screenBacklightFile, 'w')
-        backlightFile.write('1')
-        backlightFile.close()
-        logFile = open(runningLogFile, 'a') 
-        logFile.write('PyroHost suspended the system.\n') 
-        logFile.close()
-        return "200 Suspended System"
-
+        if systemSleeping == 0:
+            call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
+            time.sleep(1)
+            backlightFile = open(screenBacklightFile, 'w')
+            backlightFile.write('1')                                                                                                      
+            backlightFile.close()                                                                                                       
+            logFile = open(runningLogFile, 'a')                                                                                         
+            logFile.write('PyroHost suspended the system.\n')                                                                           
+            logFile.close()
+            systemSleeping = 1
+            return "200 Suspended System"
+        else:
+            return "200 Already Suspended"
+        
 @Pyro4.expose
 class resumeSystem(object):
     def resume_system_now(self, value):
-        backlightFile = open(screenBacklightFile, 'w')
-        backlightFile.write('0')
-        backlightFile.close()
-        logFile = open(runningLogFile, 'a')                                                                  
-        logFile.write('PyroHost resumed the system.\n')             
-        logFile.close()
-        if currentVolume > 75:
-          loweredVolume = int(currentVolume) - 50
-          adjustingVolume = int(currentVolume)
+        if systemSleeping == 1:
+            backlightFile = open(screenBacklightFile, 'w')
+            backlightFile.write(0)
+            backlightFile.close()
+            logFile = open(runningLogFile, 'a')                                                                  
+            logFile.write('PyroHost resumed the system.\n')             
+            logFile.close()
+            systemSleeping = 0
+            loweredVolume = 0
+            if currentVolume < 0:
+              currentVolume = 0
+            if currentVolume > 75:
+              loweredVolume = int(currentVolume) - 50
+              adjustingVolume = int(currentVolume)
+            if currentVolume > 100:
+              currentVolume = 100
+            else:
+              loweredVolume = int(currentVolume)
+            call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
+            call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
+            while int(loweredVolume) < int(currentVolume):
+              loweredVolume = loweredVolume + 5
+              if loweredVolume > 100:
+                loweredVolume = 100
+                break
+              call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
+              sleep(0.5)
+              #i will need to add the ability to call osmc and get current volume
+              #if currentVolume != adjustingVolume:
+              #  loweredVolume = currentVolume
+              #  break
+            return "200 Resumed System"
         else:
-          loweredVolume = int(currentVolume)
-          adjustingVolume = int(currentVolume)
-        #if currentVolume != adjustingVolume:
-          #i will need to add the ability to call osmc and get current volume
-
-        #I may have to break out of the function to insert the variable loweredVolume
-        call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
-        call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
-        while int(loweredVolume) < int(currentVolume):
-          loweredVolume = loweredVolume + 5
-          if loweredVolume > 100:
-            loweredVolume = 100
-            break
-          call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
-          sleep(0.5)
-          if currentVolume != adjustingVolume:
-            loweredVolume = currentVolume
-            break
-        return "200 Suspended Resumed"
+            return "200 Already Resumed"
 
 @Pyro4.expose
 class screenBrightness(object):
@@ -234,6 +246,7 @@ class volumeControl(object):
     else:
       currentVolume = int(currentVolume) + int(volChange)
     call(shlex.split('xbmc-send --action="SetVolume(%s)"' % currentVolume))
+    loweredVolume = currentVolume
     return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
 
 
