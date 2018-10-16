@@ -173,8 +173,8 @@ class resumeSystem(object):
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
         volSave = open(volSaveFile, 'r')
-        currentVolume = volSave.read().strip()
-        volsave.close()
+        currentVolume = int(volSave.read().strip())
+        volSave.close()
         if '1' in systemSleeping:
             backlightFile = open(screenBacklightFile, 'w')
             backlightFile.write('0')
@@ -197,7 +197,7 @@ class resumeSystem(object):
             call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
             while int(loweredVolume) < int(currentVolume):
               volSave = open(volSaveFile, 'r')
-              currentVolume = volSave.read().strip()
+              currentVolume = int(volSave.read().strip())
               volSave.close()
               loweredVolume = loweredVolume + 5
               if loweredVolume > 100:
@@ -248,10 +248,9 @@ class screenBacklight(object):
 class volumeControl(object):
   def adjustVolume(self, volChange): # Accepts -100..100 % change to current volume or mute if 0
     volSave = open(volSaveFile, 'r')
-    currentVolume = volSave.read().strip()
-    volSave.close()
+    currentVolume = int(volSave.read().strip())
     prevVol = currentVolume
-
+    volSave.close()
     if int(volChange) == 0:
       currentVolume = 0
     if (currentVolume + int(volChange)) < 0:
@@ -262,6 +261,9 @@ class volumeControl(object):
       currentVolume = int(currentVolume) + int(volChange)
     call(shlex.split('xbmc-send --action="SetVolume(%s)"' % currentVolume))
     loweredVolume = currentVolume
+    volSave = open(volSaveFile, 'w')
+    volSave.write(currentVolume)
+    volSave.close()
     return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
 
 
