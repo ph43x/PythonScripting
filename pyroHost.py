@@ -10,12 +10,13 @@ import os
 screenBrightnessFile = "/sys/class/backlight/rpi_backlight/brightness"
 screenBacklightFile = "/sys/class/backlight/rpi_backlight/bl_power"
 runningLogFile = "/home/osmc/git/PythonScripting/running.log"
+volSaveFile = "/home/osmc/git/PythonScripting/volSaver"
 #camera = picamera.PiCamera()
 videoTemp = '/home/osmc/camera/temp/'
 videoSaved = '/home/osmc/camera/video/'
 picSaved = '/home/osmc/camera/pic/'
-currentVolume = 0
-adjustingVolume = 0
+#currentVolume = 0
+#adjustingVolume = 0
 i = 0
 
 ##Camera settings with default values
@@ -164,13 +165,16 @@ class suspendSystem(object):
             return "200 Suspended System"
         else:
             return "200 Already Suspended"
-        
+
 @Pyro4.expose
 class resumeSystem(object):
     def resume_system_now(self, value):
         backlightFile = open(screenBacklightFile, 'r')
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
+        volSave = open(volSaveFile, 'r')
+        currentVolume = volSave.read().strip()
+        volsave.close()
         if '1' in systemSleeping:
             backlightFile = open(screenBacklightFile, 'w')
             backlightFile.write('0')
@@ -188,19 +192,22 @@ class resumeSystem(object):
               currentVolume = 100
             else:
               loweredVolume = int(currentVolume)
+              adjustingVolume = int(currentVolume)
             call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
             call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
             while int(loweredVolume) < int(currentVolume):
+              volSave = open(volSaveFile, 'r')
+              currentVolume = volSave.read().strip()
+              volSave.close()
               loweredVolume = loweredVolume + 5
               if loweredVolume > 100:
                 loweredVolume = 100
                 break
+              if adjustVolume != currentVolume:
+                loweredVolume = currentVolume
+                break
               call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
               sleep(0.5)
-              #i will need to add the ability to call osmc and get current volume
-              #if currentVolume != adjustingVolume:
-              #  loweredVolume = currentVolume
-              #  break
             return "200 Resumed System"
         else:
             return "200 Already Resumed"
@@ -239,7 +246,11 @@ class screenBacklight(object):
 @Pyro4.expose
 class volumeControl(object):
   def adjustVolume(self, volChange): # Accepts -100..100 % change to current volume or mute if 0
+    volSave = open(volSaveFile, 'r')
+    currentVolume = volSave.read().strip()
+    volSave.close()
     prevVol = currentVolume
+
     if int(volChange) == 0:
       currentVolume = 0
     if (currentVolume + int(volChange)) < 0:
