@@ -152,7 +152,7 @@ class suspendSystem(object):
         backlightFile = open(screenBacklightFile, 'r')
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
-        if systemSleeping == 0:
+        if '0' in systemSleeping:
             call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
             time.sleep(1)
             backlightFile = open(screenBacklightFile, 'w')
@@ -171,7 +171,7 @@ class resumeSystem(object):
         backlightFile = open(screenBacklightFile, 'r')
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
-        if systemSleeping == 1:
+        if '1' in systemSleeping:
             backlightFile = open(screenBacklightFile, 'w')
             backlightFile.write('0')
             backlightFile.close()
