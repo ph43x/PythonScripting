@@ -169,7 +169,7 @@ class resumeSystem(object):
     def resume_system_now(self, value):
         if systemSleeping == 1:
             backlightFile = open(screenBacklightFile, 'w')
-            backlightFile.write(0)
+            backlightFile.write('0')
             backlightFile.close()
             logFile = open(runningLogFile, 'a')                                                                  
             logFile.write('PyroHost resumed the system.\n')             
