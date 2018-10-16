@@ -202,6 +202,7 @@ class resumeSystem(object):
               loweredVolume = loweredVolume + 5
               if loweredVolume > 100:
                 loweredVolume = 100
+                currentVolume = 100
                 break
               if adjustVolume != currentVolume:
                 loweredVolume = currentVolume
