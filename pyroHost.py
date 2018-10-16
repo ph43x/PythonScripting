@@ -16,7 +16,6 @@ videoSaved = '/home/osmc/camera/video/'
 picSaved = '/home/osmc/camera/pic/'
 currentVolume = 0
 adjustingVolume = 0
-systemSleeping = 0
 i = 0
 
 ##Camera settings with default values
@@ -47,7 +46,7 @@ i = 0
 call(shlex.split('sudo chmod 777 ' + screenBacklightFile))
 call(shlex.split('sudo chmod 777 ' + screenBrightnessFile))
 call(shlex.split('sudo chmod 777 ' + runningLogFile))
-Pyro4.naming.startNSloop(host=None, port=None, enableBroadcast=True, bchost=None, bcport=None, unixsocket=None, nathost=None, natport=None, storage=None, hmac=None)
+#Pyro4.naming.startNSloop(host=None, port=None, enableBroadcast=True, bchost=None, bcport=None, unixsocket=None, nathost=None, natport=None, storage=None, hmac=None)
 #call(shlex.split('python3 -m Pyro4.naming &'))
 
 #=========================
@@ -150,6 +149,9 @@ class saveLastMinuteVideo(object):
 @Pyro4.expose
 class suspendSystem(object):
     def suspend_system_now(self, value):
+        backlightFile = open(screenBacklightFile, 'r')
+        systemSleeping = backlightFile.read().strip()
+        backlightFile.close()
         if systemSleeping == 0:
             call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
             time.sleep(1)
@@ -159,7 +161,6 @@ class suspendSystem(object):
             logFile = open(runningLogFile, 'a')                                                                                         
             logFile.write('PyroHost suspended the system.\n')                                                                           
             logFile.close()
-            systemSleeping = 1
             return "200 Suspended System"
         else:
             return "200 Already Suspended"
@@ -167,6 +168,9 @@ class suspendSystem(object):
 @Pyro4.expose
 class resumeSystem(object):
     def resume_system_now(self, value):
+        backlightFile = open(screenBacklightFile, 'r')
+        systemSleeping = backlightFile.read().strip()
+        backlightFile.close()
         if systemSleeping == 1:
             backlightFile = open(screenBacklightFile, 'w')
             backlightFile.write('0')
@@ -174,7 +178,6 @@ class resumeSystem(object):
             logFile = open(runningLogFile, 'a')                                                                  
             logFile.write('PyroHost resumed the system.\n')             
             logFile.close()
-            systemSleeping = 0
             loweredVolume = 0
             if currentVolume < 0:
               currentVolume = 0
