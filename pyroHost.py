@@ -182,31 +182,28 @@ class resumeSystem(object):
             logFile = open(runningLogFile, 'a')                                                                  
             logFile.write('PyroHost resumed the system.\n')             
             logFile.close()
-            loweredVolume = 0
+            loweredVolume = 100
             if currentVolume < 0:
               currentVolume = 0
             if currentVolume > 75:
-              loweredVolume = int(currentVolume) - 50
-              adjustingVolume = int(currentVolume)
+              loweredVolume = currentVolume - 50
+              adjustingVolume = currentVolume
             if currentVolume > 100:
               currentVolume = 100
-            else:
-              loweredVolume = int(currentVolume)
-              adjustingVolume = int(currentVolume)
+            volSave = open(volSaveFile, 'w')
+            volSave.write(str(currentVolume))
+            volSave.close()
             call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
             call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
-            while int(loweredVolume) < int(currentVolume):
+            while loweredVolume < currentVolume:
               volSave = open(volSaveFile, 'r')
               currentVolume = int(volSave.read().strip())
               volSave.close()
               loweredVolume = loweredVolume + 5
               if loweredVolume > 100:
                 loweredVolume = 100
-                currentVolume = 100
-                break
               if adjustVolume != currentVolume:
                 loweredVolume = currentVolume
-                break
               call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
               sleep(0.5)
             return "200 Resumed System"
@@ -219,9 +216,9 @@ class screenBrightness(object):
     if int(val) > 0 and int(val) < 255:
       if val in open(screenBrightnessFile, 'r').read():
         logFile = open(runningLogFile, 'a')
-        logFile.write('PyroHost attempted to write ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n')
+        logFile.write('PyroHost attempted to write ' + str(val) + '.\n')
         logFile.close()
-        return "100 Brightness already {0}.".format(val) 
+        return "200 Brightness already set" 
       else: 
         screenFile = open(screenBrightnessFile, 'w') 
         screenFile.write(val) 
@@ -229,7 +226,7 @@ class screenBrightness(object):
         logFile = open(runningLogFile, 'a') 
         logFile.write('PyroHost wrote ' + str(val) + ' to ' + str(screenBrightnessFile) + '.\n') 
         logFile.close() 
-        return "200 Brightness changed to {0}.".format(val) 
+        return "200 Brightness changed to {0}.".format(val)
     else:                                                                                                    
       return "100 Not a valid value 0-255"
 
@@ -238,7 +235,7 @@ class screenBacklight(object):
   def backlightChanger(self, val):
     if int(val) == 1 or int(val) == 0:
       sbl = open(screenBacklightFile, 'w')
-      sbl.write(val)
+      sbl.write(str(val))
       sbl.close()
       return "200 Backlight changed to {0}.".format(val)
     else:
@@ -258,11 +255,11 @@ class volumeControl(object):
     if (currentVolume + int(volChange)) > 100:
       currentVolume = 100
     else:
-      currentVolume = int(currentVolume) + int(volChange)
+      currentVolume = currentVolume + int(volChange)
     call(shlex.split('xbmc-send --action="SetVolume(%s)"' % currentVolume))
     loweredVolume = currentVolume
     volSave = open(volSaveFile, 'w')
-    volSave.write(currentVolume)
+    volSave.write(str(currentVolume))
     volSave.close()
     return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
 
