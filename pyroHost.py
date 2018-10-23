@@ -149,7 +149,7 @@ class saveLastMinuteVideo(object):
 
 @Pyro4.expose
 class suspendSystem(object):
-    def suspend_system_now(self, value):
+    def suspend_system_now(self, val):
         backlightFile = open(screenBacklightFile, 'r')
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
@@ -169,46 +169,50 @@ class suspendSystem(object):
 @Pyro4.expose
 class resumeSystem(object):
     def resume_system_now(self, value):
-        backlightFile = open(screenBacklightFile, 'r')
-        systemSleeping = backlightFile.read().strip()
-        backlightFile.close()
-        volSave = open(volSaveFile, 'r')
-        currentVolume = int(volSave.read().strip())
-        volSave.close()
-        if '1' in systemSleeping:
-            backlightFile = open(screenBacklightFile, 'w')
-            backlightFile.write('0')
+            backlightFile = open(screenBacklightFile, 'r')
+            systemSleeping = backlightFile.read().strip()
             backlightFile.close()
-            logFile = open(runningLogFile, 'a')                                                                  
-            logFile.write('PyroHost resumed the system.\n')             
-            logFile.close()
-            loweredVolume = 100
-            if currentVolume < 0:
-              currentVolume = 0
-            if currentVolume > 75:
-              loweredVolume = currentVolume - 50
-              adjustingVolume = currentVolume
-            if currentVolume > 100:
-              currentVolume = 100
-            volSave = open(volSaveFile, 'w')
-            volSave.write(str(currentVolume))
+            volSave = open(volSaveFile, 'r')
+            currentVolRead = volSave.read().replace('\n','')
+            currentVolRead = currentVolRead.replace('\t','')
+            currentVolume = int(currentVolRead)
             volSave.close()
-            call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
-            call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
-            while loweredVolume < currentVolume:
-              volSave = open(volSaveFile, 'r')
-              currentVolume = int(volSave.read().strip())
-              volSave.close()
-              loweredVolume = loweredVolume + 5
-              if loweredVolume > 100:
-                loweredVolume = 100
-              if adjustVolume != currentVolume:
-                loweredVolume = currentVolume
-              call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
-              sleep(0.5)
-            return "200 Resumed System"
-        else:
-            return "200 Already Resumed"
+            loweredVolume = 100
+            if currentVolume < 0:                                                                  
+                currentVolume = 0                                                                    
+            if currentVolume > 75:                                                                 
+                loweredVolume = currentVolume - 50                                                   
+            if currentVolume > 100:                               
+                currentVolume = 100
+            print(currentVolRead + ' ' + str(currentVolume))
+            if '1' in systemSleeping:
+                backlightFile = open(screenBacklightFile, 'w')
+                backlightFile.write('0')
+                backlightFile.close()
+                volSave = open(volSaveFile, 'w')
+                volSave.write(str(currentVolume))
+                volSave.close()
+                call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
+                call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
+                while loweredVolume < currentVolume:
+                  volSave = open(volSaveFile, 'r')
+                  currentVolRead = volSave.read().strip('\n')
+                  if currentVolume != int(currentVolRead):
+                    currentVolume = loweredVolume
+                  else:
+                    currentVolume = int(currentVolRead)
+                    loweredVolume = loweredVolume + 5
+                  volSave.close()
+                  call(shlex.split('xbmc-send --action="SetVolume(%s)"' % loweredVolume))
+                  time.sleep(0.5)
+                logFile = open(runningLogFile, 'a')
+                logFile.write('PyroHost resumed the system.\n')             
+                logFile.close()
+                return "200 Resumed System"
+            if '0' in systemSleeping:
+                return "200 Already Resumed"
+            else:
+                return "100 Broken"
 
 @Pyro4.expose
 class screenBrightness(object):
@@ -245,9 +249,11 @@ class screenBacklight(object):
 class volumeControl(object):
   def adjustVolume(self, volChange): # Accepts -100..100 % change to current volume or mute if 0
     volSave = open(volSaveFile, 'r')
-    currentVolume = int(volSave.read().strip())
-    prevVol = currentVolume
+    currentVolume = int(volSave.read().rstrip('\n'))
+    prevVol = int(currentVolume)
+    currentVolume = int(currentVolume)
     volSave.close()
+    volChange = int(volChange)
     if int(volChange) == 0:
       currentVolume = 0
     if (currentVolume + int(volChange)) < 0:
