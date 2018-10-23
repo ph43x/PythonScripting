@@ -184,7 +184,6 @@ class resumeSystem(object):
                 loweredVolume = currentVolume - 50                                                   
             if currentVolume > 100:                               
                 currentVolume = 100
-            print(currentVolRead + ' ' + str(currentVolume))
             if '1' in systemSleeping:
                 backlightFile = open(screenBacklightFile, 'w')
                 backlightFile.write('0')
