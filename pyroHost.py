@@ -15,9 +15,6 @@ volSaveFile = "/home/osmc/git/PythonScripting/volSaver"
 videoTemp = '/home/osmc/camera/temp/'
 videoSaved = '/home/osmc/camera/video/'
 picSaved = '/home/osmc/camera/pic/'
-#currentVolume = 0
-#adjustingVolume = 0
-i = 0
 
 ##Camera settings with default values
 #camera.sharpness = 0
@@ -47,8 +44,6 @@ i = 0
 call(shlex.split('sudo chmod 777 ' + screenBacklightFile))
 call(shlex.split('sudo chmod 777 ' + screenBrightnessFile))
 call(shlex.split('sudo chmod 777 ' + runningLogFile))
-#Pyro4.naming.startNSloop(host=None, port=None, enableBroadcast=True, bchost=None, bcport=None, unixsocket=None, nathost=None, natport=None, storage=None, hmac=None)
-#call(shlex.split('python3 -m Pyro4.naming &'))
 
 #=========================
 # PiCamera Video functions
@@ -70,8 +65,6 @@ class saveLastMinuteVideo(object):
 # 5-Change cameras brightness
 # 6-Save last minute of video
 #===============================
-
-#cant deal with picam right now,need system running sorta
 
 #@Pyro4.expose
 #class videoControl(object):
@@ -154,7 +147,7 @@ class suspendSystem(object):
         systemSleeping = backlightFile.read().strip()
         backlightFile.close()
         if '0' in systemSleeping:
-            call(shlex.split('xbmc-send --action="PlayerControl(Stop)"'))
+            call(shlex.split('xbmc-send --action="PlayerControl(Play)"'))
             time.sleep(1)
             backlightFile = open(screenBacklightFile, 'w')
             backlightFile.write('1')                                                                                                      
