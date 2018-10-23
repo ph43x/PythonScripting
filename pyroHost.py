@@ -249,11 +249,10 @@ class screenBacklight(object):
 class volumeControl(object):
   def adjustVolume(self, volChange): # Accepts -100..100 % change to current volume or mute if 0
     volSave = open(volSaveFile, 'r')
-    currentVolume = int(volSave.read().rstrip('\n'))
-    prevVol = int(currentVolume)
-    currentVolume = int(currentVolume)
+    currentVolRead = volSave.read().replace('\n','')
+    currentVolRead = currentVolRead.replace('\t','')
+    currentVolume = int(currentVolRead)
     volSave.close()
-    volChange = int(volChange)
     if int(volChange) == 0:
       currentVolume = 0
     if (currentVolume + int(volChange)) < 0:
@@ -263,11 +262,10 @@ class volumeControl(object):
     else:
       currentVolume = currentVolume + int(volChange)
     call(shlex.split('xbmc-send --action="SetVolume(%s)"' % currentVolume))
-    loweredVolume = currentVolume
     volSave = open(volSaveFile, 'w')
     volSave.write(str(currentVolume))
     volSave.close()
-    return "200 Volume Set From {0} to {1}".format(prevVol, currentVolume)
+    return "200 Volume Set to {0}".format(currentVolume)
 
 
 
