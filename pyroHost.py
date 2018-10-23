@@ -267,8 +267,8 @@ uri = daemon.register(screenBrightness) # register the greeting maker as a Pyro 
 ns.register("screen.brightness", uri)   # register the object with a name in the name server
 uri = daemon.register(screenBacklight)
 ns.register("screen.backlight", uri)
-uri = daemon.register(saveLastMinuteVideo) # register saving the last minute of video object
-ns.register("save.lastMinuteVideo", uri)   # registering the object with NS
+#uri = daemon.register(saveLastMinuteVideo) # register saving the last minute of video object
+#ns.register("save.lastMinuteVideo", uri)   # registering the object with NS
 uri = daemon.register(suspendSystem)
 ns.register("system.suspend", uri)
 uri = daemon.register(resumeSystem)
