@@ -12,15 +12,15 @@ screenBacklightFile = "/sys/class/backlight/rpi_backlight/bl_power"
 runningLogFile = "/home/osmc/git/PythonScripting/running.log"
 volSaveFile = "/home/osmc/git/PythonScripting/volSaver"
 #camera = picamera.PiCamera()
-videoTemp = '/home/osmc/camera/temp/'
-videoSaved = '/home/osmc/camera/video/'
-picSaved = '/home/osmc/camera/pic/'
+#videoTemp = '/home/osmc/camera/temp/'
+#videoSaved = '/home/osmc/camera/video/'
+#picSaved = '/home/osmc/camera/pic/'
 
 ##Camera settings with default values
 #camera.sharpness = 0
 ##camera.contrast = 0
 #camera.contrast = 50
-##camera.brightness = 50
+#camera.brightness = 50
 #camera.brightness = 75
 #camera.saturation = 0
 #camera.ISO = 0
@@ -49,13 +49,13 @@ call(shlex.split('sudo chmod 777 ' + runningLogFile))
 # PiCamera Video functions
 #=========================
 
-@Pyro4.expose
-class saveLastMinuteVideo(object):
-    def saveLastMin(self, value):
-        currentTime = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-        currentTimeSansThree = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-        cTST = datetime.datetime.now() - datetime.timedelta(minutes=3)
-        return cTST.strftime('%Y-%m-%d_%H.%M.%S')
+#@Pyro4.expose
+#class saveLastMinuteVideo(object):
+#    def saveLastMin(self, value):
+#        currentTime = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+#        currentTimeSansThree = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+#        cTST = datetime.datetime.now() - datetime.timedelta(minutes=3)
+#        return cTST.strftime('%Y-%m-%d_%H.%M.%S')
 
 #===============================
 # Actions for videoControl class
@@ -134,8 +134,8 @@ class saveLastMinuteVideo(object):
 #
 #    else:
 #      return("100 Action Unknown" + str(action))
-#
-#
+
+
 #=========================
 # System suspend functions
 #=========================
