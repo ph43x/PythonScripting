@@ -155,8 +155,10 @@ class suspendSystem(object):
             logFile = open(runningLogFile, 'a')                                                                                         
             logFile.write('PyroHost suspended the system.\n')                                                                           
             logFile.close()
+            call(shlex.split('sudo shutdown now'))
             return "200 Suspended System"
         else:
+            call(shlex.split('sudo shutdown now'))
             return "200 Already Suspended"
 
 @Pyro4.expose
